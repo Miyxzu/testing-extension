@@ -1,0 +1,25 @@
+.acrylic-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	backdrop-filter: blur(10px) brightness(0.9);
+	background: rgba(255, 255, 255, 0.3);
+	z-index: 2147483647;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	pointer-events: auto;
+}
+.acrylic-card {
+	background: rgba(255, 255, 255, 0.5);
+	backdrop-filter: blur(10px);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	border-radius: 10px;
+	padding: 20px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.acrylic-card button {
+	margin-top: 10px;
+}
