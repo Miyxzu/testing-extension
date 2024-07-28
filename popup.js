@@ -1,5 +1,25 @@
 //Get title of the active tab
 document.querySelector(".titleButton").addEventListener("click", function () {
+    getTitle();
+});
+
+//Inject CSS into the active tab
+document.querySelector(".on").addEventListener("click", function () {
+    chrome.runtime.sendMessage({ action: "injectAcrylicEffect" });
+});
+
+//Remove injected CSS from the active tab
+document.querySelector(".off").addEventListener("click", function () {
+    chrome.runtime.sendMessage({ action: "removeAcrylicEffect" });
+});
+
+//Append Title to whitelist.json
+document.querySelector(".titleJson").addEventListener("click", function () {
+    
+});
+
+// Get Title Function
+function getTitle() {
     chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
         if (tabs.length === 0) {
             console.error("No active tab found.");
@@ -51,14 +71,4 @@ document.querySelector(".titleButton").addEventListener("click", function () {
             console.error("Error parsing URL:", e);
         }
     });
-});
-
-//Inject CSS into the active tab
-document.querySelector(".on").addEventListener("click", function () {
-    chrome.runtime.sendMessage({ action: "injectAcrylicEffect" });
-});
-
-//Remove injected CSS from the active tab
-document.querySelector(".off").addEventListener("click", function () {
-    chrome.runtime.sendMessage({ action: "removeAcrylicEffect" });
-});
+}
