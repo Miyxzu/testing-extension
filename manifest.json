@@ -15,7 +15,7 @@
     ],
     "web_accessible_resources": [
         {
-            "resources": ["acrylic.css"],
+            "resources": ["acrylic.css", "dashboard/page.html"],
             "matches": ["<all_urls>"]
         }
     ]

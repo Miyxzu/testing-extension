@@ -20,5 +20,6 @@
         "whitelisted": {
             "type": "boolean"
         }
-    }
+    },
+    "required": ["websiteName", "url", "permissions", "whitelisted"]
 }
