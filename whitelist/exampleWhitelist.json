@@ -1,8 +1,0 @@
-{
-    "websiteTitle": {
-        "websiteName": "Example Website",
-        "url": "https://example.com",
-        "permissions": ["notifications", "sounds"],
-        "whitelisted": true
-    }
-}

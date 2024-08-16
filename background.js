@@ -58,19 +58,3 @@ function removeAcrylicEffect() {
         overlay.remove();
     }
 }
-
-chrome.runtime.onInstalled.addListener(function(details) {
-    if (details.reason === 'install') {
-        // Define your JSON data
-        const jsonData = {
-            key1: 'value1',
-            key2: 'value2',
-            key3: 'value3'
-        };
-
-        // Store JSON data using chrome.storage.local
-        chrome.storage.local.set({ myJsonData: jsonData }, function() {
-            console.log('JSON data has been stored.');
-        });
-    }
-});

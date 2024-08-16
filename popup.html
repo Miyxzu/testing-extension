@@ -9,31 +9,19 @@
 <body>
     <h1>Website Title: <span id="title"></span></h1>
     <div class="buttons">
-        <button class="titleButton">
-            get title
-        </button>
-        <button class="on">
-            inject
-        </button>
-        <button class="off">
-            remove
-        </button>
-        <button class="jsonPush">
-            push details to json
-        </button>
-        <button class="showWhitelist">
-            show whitelist
-        </button>
+        <button class="titleButton">get title</button>
+        <button class="on">inject</button>
+        <button class="off">remove</button>
+        <button class="jsonPush">push details to json</button>
+        <button class="showWhitelist">show whitelist</button>
     </div>
     <div class="whitelist">
         <h2>Whitelist</h2>
-        <ul id="whitelist">
-        </ul>
+        <div id="whitelistContainer"></div> <!-- Ensure this ID matches -->
     </div>
     <div class="page">
-        <a href="dashboard/page.html" class="dashboard" target="_blank">dasgboard</a>
+        <a href="dashboard/page.html" class="dashboard" target="_blank">dashboard</a>
     </div>
-
     <script src="popup.js"></script>
 </body>
 </html>

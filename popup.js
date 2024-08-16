@@ -1,3 +1,25 @@
+// Create a WebSocket connection to the server
+const ws = new WebSocket('ws://localhost:8080');
+
+// Override console methods
+['log', 'info', 'warn', 'error'].forEach((method) => {
+    const originalMethod = console[method];
+    console[method] = function (...args) {
+        // Send log messages to the WebSocket server
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ method, args }));
+        }
+        // Call the original console method
+        originalMethod.apply(console, args);
+    };
+});
+
+// Example usage
+console.log('This is a log message');
+console.info('This is an info message');
+console.warn('This is a warning message');
+console.error('This is an error message');
+
 // Get title of the active tab
 document.querySelector(".titleButton").addEventListener("click", function () {
     getTitle((title) => {
@@ -43,15 +65,9 @@ document.querySelector(".jsonPush").addEventListener("click", function () {
                 });
                 chrome.storage.local.set({ whitelist: whitelist }, function () {
                     console.log("Details added to whitelist");
-                    chrome.storage.local.get(
-                        ["whitelist"],
-                        function (updatedResult) {
-                            console.log(
-                                "Updated whitelist:",
-                                updatedResult.whitelist
-                            ); // Debug log
-                        }
-                    );
+                    chrome.storage.local.get(["whitelist"], function (updatedResult) {
+                        console.log("Updated whitelist:", updatedResult.whitelist); // Debug log
+                    });
                 });
             });
         });
@@ -156,12 +172,13 @@ function displayWhitelist() {
             return;
         }
         const whitelist = data.whitelist || [];
+        console.log("Fetched whitelist:", whitelist); // Debug log
         const whitelistContainer = document.getElementById("whitelistContainer");
         whitelistContainer.innerHTML = ""; // Clear any existing content
 
-        whitelist.forEach((item) => {
+        whitelist.forEach((item, index) => {
             const listItem = document.createElement("div");
-            listItem.textContent = `Website: ${item.websiteName}, URL: ${item.url}`;
+            listItem.textContent = `Index: ${index} <br> Website: ${item.websiteName} <br> URL: ${item.url}`;
             whitelistContainer.appendChild(listItem);
         });
     });
