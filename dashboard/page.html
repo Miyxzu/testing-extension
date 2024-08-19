@@ -4,8 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>test</h1>
+    <div class="addTasks">
+        <h2>Add Tasks</h2>
+        <label for="taskInput" class="taskLabel"></label>
+        <input type="text" id="taskInput" placeholder="Enter task">
+        <button class="tasksButton">Add Task</button>
+        <div id="taskContainer"></div>
+    </div>
+    <div class="filteredWebsites">
+        <h2>Filtered Websites</h2>
+        <label for="websiteText" class="websiteLabel"></label>
+        <input type="text" id="websiteText" placeholder="Website URL">
+        <button class="websiteButton">Filter Website</button>
+        <div id="filteredWebsitesContainer"></div>
+    </div>
+    <script src="index.js"></script>
 </body>
 </html>

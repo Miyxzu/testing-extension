@@ -14,31 +14,25 @@ const ws = new WebSocket('ws://localhost:8080');
     };
 });
 
-// Example usage
-console.log('This is a log message');
-console.info('This is an info message');
-console.warn('This is a warning message');
-console.error('This is an error message');
-
 // Get title of the active tab
-document.querySelector(".titleButton").addEventListener("click", function () {
+document.getElementById("titleButton").addEventListener("click", function () {
     getTitle((title) => {
         document.getElementById("title").textContent = title;
     });
 });
 
 // Inject CSS into the active tab
-document.querySelector(".on").addEventListener("click", function () {
+document.getElementById("on").addEventListener("click", function () {
     chrome.runtime.sendMessage({ action: "injectAcrylicEffect" });
 });
 
 // Remove injected CSS from the active tab
-document.querySelector(".off").addEventListener("click", function () {
+document.getElementById("off").addEventListener("click", function () {
     chrome.runtime.sendMessage({ action: "removeAcrylicEffect" });
 });
 
 // Append Title to whitelist.json
-document.querySelector(".jsonPush").addEventListener("click", function () {
+document.getElementById("jsonPush").addEventListener("click", function () {
     getTitle((title) => {
         if (!title) {
             console.error("No title found.");
@@ -178,11 +172,11 @@ function displayWhitelist() {
 
         whitelist.forEach((item, index) => {
             const listItem = document.createElement("div");
-            listItem.textContent = `Index: ${index} <br> Website: ${item.websiteName} <br> URL: ${item.url}`;
+            listItem.innerHTML = `Index: ${index} <br> Website: ${item.websiteName} <br> URL: ${item.url}`;
             whitelistContainer.appendChild(listItem);
         });
     });
 }
 
 // Event listener for the "show whitelist" button
-document.querySelector(".showWhitelist").addEventListener("click", displayWhitelist);
+document.getElementById("showWhitelist").addEventListener("click", displayWhitelist);

@@ -9,11 +9,11 @@
 <body>
     <h1>Website Title: <span id="title"></span></h1>
     <div class="buttons">
-        <button class="titleButton">get title</button>
-        <button class="on">inject</button>
-        <button class="off">remove</button>
-        <button class="jsonPush">push details to json</button>
-        <button class="showWhitelist">show whitelist</button>
+        <button id="titleButton">get title</button>
+        <button id="on">inject</button>
+        <button id="off">remove</button>
+        <button id="jsonPush">push details to json</button>
+        <button id="showWhitelist">show whitelist</button>
     </div>
     <div class="whitelist">
         <h2>Whitelist</h2>
@@ -21,6 +21,12 @@
     </div>
     <div class="page">
         <a href="dashboard/page.html" class="dashboard" target="_blank">dashboard</a>
+    </div>
+    <div class="addTasks">
+        <h2>Add Tasks</h2>
+        <input type="text" id="task" placeholder="Enter task">
+        <button id="addTask">Add Task</button>
+        <div id="taskContainer"></div>
     </div>
     <script src="popup.js"></script>
 </body>
