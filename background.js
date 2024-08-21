@@ -59,4 +59,23 @@ function removeAcrylicEffect() {
     }
 }
 
-// 
+// Get Title Function
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "fetchTitle") {
+        const url = request.url;
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+                const titleElement = doc.querySelector("title");
+                const title = titleElement ? titleElement.innerText : "No Title Found";
+                sendResponse({ title });
+            })
+            .catch(error => {
+                console.error("Error fetching title:", error);
+                sendResponse({ title: "No Title Found" });
+            });
+        return true; // Indicates that the response will be sent asynchronously
+    }
+});

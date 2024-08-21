@@ -12,14 +12,16 @@
         <h2>Add Tasks</h2>
         <label for="taskInput" class="taskLabel"></label>
         <input type="text" id="taskInput" placeholder="Enter task">
-        <button class="tasksButton">Add Task</button>
+        <button id="tasksButton">Add Task</button>
+        <button id="clearTasks">Force Clear Tasks</button>
         <div id="taskContainer"></div>
     </div>
     <div class="filteredWebsites">
         <h2>Filtered Websites</h2>
         <label for="websiteText" class="websiteLabel"></label>
         <input type="text" id="websiteText" placeholder="Website URL">
-        <button class="websiteButton">Filter Website</button>
+        <button id="websiteButton">Filter Website</button>
+        <button id="resetWhitelist">Reset Filtered Websites</button>
         <div id="filteredWebsitesContainer"></div>
     </div>
     <script src="index.js"></script>

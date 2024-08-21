@@ -1,8 +1,8 @@
 // Create a WebSocket connection to the server
-const ws = new WebSocket('ws://localhost:8080');
+const ws = new WebSocket("ws://localhost:8080");
 
 // Override console methods
-['log', 'info', 'warn', 'error'].forEach((method) => {
+["log", "info", "warn", "error"].forEach((method) => {
     const originalMethod = console[method];
     console[method] = function (...args) {
         // Send log messages to the WebSocket server
@@ -45,23 +45,34 @@ document.getElementById("jsonPush").addEventListener("click", function () {
             if (!url) {
                 console.error("No URL found.");
                 return;
-            } else if(url === "chrome://newtab/") {
+            } else if (url === "chrome://newtab/") {
                 console.error("URL is 'chrome://newtab/'.");
                 return;
             }
             chrome.storage.sync.get("whitelist", function (data) {
                 var whitelist = data.whitelist || [];
+                var urlCheck = whitelist.find((item) => item.url === url);
+                if (urlCheck) {
+                    console.error("URL already exists in whitelist.");
+                    return;
+                }
                 whitelist.push({
                     websiteName: title,
                     url: url,
                     permissions: [],
                     whitelisted: true,
                 });
-                chrome.storage.local.set({ whitelist: whitelist }, function () {
+                chrome.storage.sync.set({ whitelist: whitelist }, function () {
                     console.log("Details added to whitelist");
-                    chrome.storage.local.get(["whitelist"], function (updatedResult) {
-                        console.log("Updated whitelist:", updatedResult.whitelist); // Debug log
-                    });
+                    chrome.storage.sync.get(
+                        ["whitelist"],
+                        function (updatedResult) {
+                            console.log(
+                                "Updated whitelist:",
+                                updatedResult.whitelist
+                            ); // Debug log
+                        }
+                    );
                 });
             });
         });
@@ -159,15 +170,19 @@ function getURL(callback) {
 }
 
 // Function to display the whitelist
-function displayWhitelist() {
+document.getElementById("showWhitelist").addEventListener("click", function () {
     chrome.storage.local.get("whitelist", function (data) {
         if (chrome.runtime.lastError) {
-            console.error("Error retrieving whitelist:", chrome.runtime.lastError);
+            console.error(
+                "Error retrieving whitelist:",
+                chrome.runtime.lastError
+            );
             return;
         }
         const whitelist = data.whitelist || [];
         console.log("Fetched whitelist:", whitelist); // Debug log
-        const whitelistContainer = document.getElementById("whitelistContainer");
+        const whitelistContainer =
+            document.getElementById("whitelistContainer");
         whitelistContainer.innerHTML = ""; // Clear any existing content
 
         whitelist.forEach((item, index) => {
@@ -176,7 +191,67 @@ function displayWhitelist() {
             whitelistContainer.appendChild(listItem);
         });
     });
-}
+});
 
-// Event listener for the "show whitelist" button
-document.getElementById("showWhitelist").addEventListener("click", displayWhitelist);
+// document.getElementById("addTask").addEventListener("click", function () {
+//     const task = document.getElementById("taskInput").value;
+//     if (!task) {
+//         console.error("Please Enter a Task.");
+//         return;
+//     }
+//     chrome.storage.local.get("tasks", function (data) {
+//         var tasks = data.tasks || [];
+//         tasks.push({
+//             task: task,
+//             completed: false,
+//         });
+//         chrome.storage.local.set({ tasks: tasks }, function () {
+//             console.log("Task added to list");
+//             chrome.storage.local.get(["tasks"], function (updatedResult) {
+//                 console.log("Updated tasks:", updatedResult.tasks); // Debug log
+//                 displayTasks(); // Call displayTasks after adding the task
+//             });
+//         });
+//     });
+// });
+
+// // Display the list of tasks
+// function displayTasks() {
+//     chrome.storage.sync.get("tasks", function (data) {
+//         var tasks = data.tasks || [];
+//         var taskList = document.getElementById("taskContainer");
+//         taskList.innerHTML = "";
+//         tasks.forEach((task, index) => {
+//             var taskItem = document.createElement("li");
+
+//             // Create checkbox
+//             var checkbox = document.createElement("input");
+//             checkbox.type = "checkbox";
+//             checkbox.checked = task.completed;
+//             checkbox.addEventListener("change", function () {
+//                 toggleTask(index);
+//             });
+
+//             // Append checkbox and task text to the list item
+//             taskItem.appendChild(checkbox);
+//             taskItem.appendChild(document.createTextNode(task.task));
+//             taskItem.setAttribute("data-index", index);
+
+//             taskList.appendChild(taskItem);
+//             if (task.completed) {
+//                 taskItem.classList.add("completed");
+//             }
+//         });
+//     });
+// }
+
+// // Toggle task completion status
+// function toggleTask(index) {
+//     chrome.storage.local.get("tasks", function (data) {
+//         var tasks = data.tasks || [];
+//         tasks[index].completed = !tasks[index].completed;
+//         chrome.storage.local.set({ tasks: tasks }, function () {
+//             displayTasks();
+//         });
+//     });
+// }
