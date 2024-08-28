@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         if (url) {
             if (!url.startsWith("http://") && !url.startsWith("https://")) {
-            url = "https://" + url;
+                url = "https://" + url;
             }
         }
         chrome.storage.sync.get("whitelist", function (data) {
@@ -22,16 +22,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 var urlObject = new URL(url);
                 var mainDomain = urlObject.protocol + "//" + urlObject.hostname;
 
+                console.log("Main Domain:", mainDomain); // Debug log
+
                 if (url === mainDomain || url === mainDomain + "/") {
                     chrome.runtime.sendMessage({ action: "fetchTitle", url: mainDomain }, function (response) {
+                        if (response && response.status === 500) {
+                            console.error("Website not added to whitelist.");
+                            return;
+                        }
+
                         var title = response && response.title ? response.title : "No Title Found";
 
-                        whitelist.push({
+                        whitelist.push({ // Add the website to the whitelist
                             websiteName: title,
                             url: url,
                             permissions: [],
-                            whitelisted: true,
+                            whitelisted: false,
                         });
+
                         chrome.storage.sync.set({ whitelist: whitelist }, function () {
                             chrome.storage.sync.get(["whitelist"], function (updatedResult) {
                                 console.log("Updated whitelist:", updatedResult.whitelist); // Debug log
@@ -39,6 +47,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             });
                         });
                     });
+                } else {
+                    console.error("URL does not match the main domain.");
                 }
             } catch (error) {
                 console.error("Error parsing URL:", error);
@@ -51,6 +61,29 @@ document.addEventListener("DOMContentLoaded", function () {
         chrome.storage.sync.remove("whitelist", function () {
             displayWhitelist();
         });
+    });
+
+    // Example function to update the whitelist
+    function updateWhitelist(newItem) {
+        chrome.storage.sync.get("whitelist", function (data) {
+            const whitelist = data.whitelist || [];
+            whitelist.push(newItem);
+            chrome.storage.sync.set({ whitelist: whitelist }, function () {
+                if (chrome.runtime.lastError) {
+                    console.error("Error updating whitelist:", chrome.runtime.lastError);
+                } else {
+                    console.log("Whitelist updated successfully");
+                }
+            });
+        });
+    }
+
+    // Listen for changes in storage
+    chrome.storage.onChanged.addListener(function (changes, namespace) {
+        if (namespace === 'sync' && changes.whitelist) {
+            console.log("Whitelist updated:", changes.whitelist.newValue);
+            // Handle the updated whitelist if needed
+        }
     });
 
     // Function to display the whitelist
@@ -81,17 +114,14 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         chrome.storage.local.get("tasks", function (data) {
-            var tasks = data.tasks || [];
+            const tasks = data.tasks || [];
             tasks.push({
                 task: task,
                 completed: false,
             });
             chrome.storage.local.set({ tasks: tasks }, function () {
                 console.log("Task added to list");
-                chrome.storage.local.get(["tasks"], function (updatedResult) {
-                    console.log("Updated tasks:", updatedResult.tasks); // Debug log
-                    displayTasks(); // Call displayTasks after adding the task
-                });
+                displayTasks(); // Call displayTasks after adding the task
             });
         });
     });
@@ -106,15 +136,15 @@ document.addEventListener("DOMContentLoaded", function () {
     // Display the list of tasks
     function displayTasks() {
         chrome.storage.local.get("tasks", function (data) {
-            var tasks = data.tasks || [];
-            var taskList = document.getElementById("taskContainer");
+            const tasks = data.tasks || [];
+            const taskList = document.getElementById("taskContainer");
             taskList.innerHTML = "";
 
             tasks.forEach((task, index) => {
-                var taskItem = document.createElement("li");
+                const taskItem = document.createElement("li");
 
                 // Create checkbox
-                var checkbox = document.createElement("input");
+                const checkbox = document.createElement("input");
                 checkbox.type = "checkbox";
                 checkbox.checked = task.completed;
                 checkbox.addEventListener("change", function () {
@@ -187,7 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 //             if (url === mainDomain || url === mainDomain + "/") {
 //                 // Use a public CORS proxy
-//                 var proxyUrl = "https://cors-anywhere.herokuapp.com/" + mainDomain;
+//                 const proxyUrl = `https://cors-anywhere.herokuapp.com/${mainDomain}`;
 //                 fetch(proxyUrl)
 //                     .then((response) => response.text())
 //                     .then((html) => {
