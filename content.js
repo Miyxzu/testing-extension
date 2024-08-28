@@ -18,9 +18,12 @@ function addAcrylicEffect() {
         const card = document.createElement("div");
         card.classList.add("acrylic-card");
 
-        if (tasks.length > 0) {
+        // Filter out empty or whitespace-only tasks
+        const filteredTasks = tasks.filter(task => task.title && task.title.trim() !== "");
+
+        if (filteredTasks.length > 0) {
             const taskList = document.createElement("ul");
-            tasks.forEach((task) => {
+            filteredTasks.forEach((task) => {
                 const listItem = document.createElement("li");
                 listItem.textContent = task.title;
                 taskList.appendChild(listItem);
