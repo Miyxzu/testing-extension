@@ -35,29 +35,29 @@ document.addEventListener("DOMContentLoaded", function () {
                     console.error("URL is 'chrome://newtab/'.");
                     return;
                 }
-                chrome.storage.sync.get("whitelist", function (data) {
-                    var whitelist = data.whitelist || [];
-                    var urlCheck = whitelist.find((item) => item.url === url);
+                chrome.storage.sync.get("filterList", function (data) {
+                    var filterList = data.filterList || [];
+                    var urlCheck = filterList.find((item) => item.url === url);
                     if (urlCheck) {
-                        console.error("URL already exists in whitelist.");
+                        console.error("URL already exists in Filter List.");
                         return;
                     }
-                    whitelist.push({
+                    filterList.push({
                         websiteName: title,
                         url: url,
                         permissions: [],
                         whitelisted: true,
                     });
                     chrome.storage.sync.set(
-                        { whitelist: whitelist },
+                        { filterList: filterList },
                         function () {
-                            console.log("Details added to whitelist");
+                            console.log("Details added to Filter List");
                             chrome.storage.sync.get(
-                                ["whitelist"],
+                                ["filterList"],
                                 function (updatedResult) {
                                     console.log(
-                                        "Updated whitelist:",
-                                        updatedResult.whitelist
+                                        "Updated Filter List:",
+                                        updatedResult.filterList
                                     ); // Debug log
                                 }
                             );
@@ -173,29 +173,29 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Function to display the whitelist
-    document.getElementById("showWhitelist").addEventListener("click", function () {
-        chrome.storage.sync.get("whitelist", function (data) {
+    document.getElementById("showfilterList").addEventListener("click", function () {
+        chrome.storage.sync.get("filterList", function (data) {
             if (chrome.runtime.lastError) {
-                console.error("Error retrieving whitelist:", chrome.runtime.lastError);
+                console.error("Error retrieving Filter List:", chrome.runtime.lastError);
                 return;
             }
-            const whitelist = data.whitelist || [];
-            console.log("Fetched whitelist:", whitelist); // Debug log
-            const whitelistContainer = document.getElementById("whitelistContainer");
-            whitelistContainer.innerHTML = ""; // Clear any existing content
+            const filterList = data.filterList || [];
+            console.log("Fetched Filter List:", filterList); // Debug log
+            const filterListContainer = document.getElementById("filterListContainer");
+            filterListContainer.innerHTML = ""; // Clear any existing content
     
-            whitelist.forEach((item, index) => {
+            filterList.forEach((item, index) => {
                 const listItem = document.createElement("div");
                 listItem.innerHTML = `Index: ${index} <br> Website: ${item.websiteName} <br> URL: ${item.url}`;
-                whitelistContainer.appendChild(listItem);
+                filterListContainer.appendChild(listItem);
             });
         });
     });
 
     // Listen for changes in storage
     chrome.storage.onChanged.addListener(function (changes, namespace) {
-        if (namespace === 'sync' && changes.whitelist) {
-            console.log("Whitelist updated:", changes.whitelist.newValue);
+        if (namespace === 'sync' && changes.filterList) {
+            console.log("Filter List updated:", changes.filterList.newValue);
             // Update the whitelist display if needed
         }
     });

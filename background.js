@@ -91,8 +91,8 @@ function removeAcrylicEffect() {
 chrome.tabs.onActivated.addListener((activeInfo) => {
     chrome.tabs.get(activeInfo.tabId, (tab) => {
         if (tab.url) {
-            checkIfWhitelisted(tab.url).then((isWhitelisted) => {
-                if (isWhitelisted) {
+            checkIfFiltered(tab.url).then((isFiltered) => {
+                if (isFiltered) {
                     checkIfTask().then((hasTasks) => {
                         if (hasTasks) {
                             chrome.tabs.sendMessage(activeInfo.tabId, {
@@ -146,20 +146,20 @@ chrome.runtime.onSuspend.addListener(() => {
 });
 
 // Check if the URL is whitelisted
-function checkIfWhitelisted(url) {
+function checkIfFiltered(url) {
     return new Promise((resolve, reject) => {
-        chrome.storage.sync.get("whitelist", (data) => {
+        chrome.storage.sync.get("filterList", (data) => {
             if (chrome.runtime.lastError) {
                 return reject(chrome.runtime.lastError);
             }
-            const whitelist = data.whitelist || [];
-            console.log(`Whitelist: ${JSON.stringify(whitelist)}`);
+            const filterList = data.filterList || [];
+            console.log(`filterList: ${JSON.stringify(filterList)}`);
             const normalizedUrl = normalizeUrl(url);
             console.log(`Normalized URL: ${normalizedUrl}`);
-            const urlCheck = whitelist.find((item) => {
-                const normalizedWhitelistUrl = normalizeUrl(item.url);
-                console.log(`Checking against whitelist URL: ${normalizedWhitelistUrl}`);
-                return normalizedUrl.endsWith(normalizedWhitelistUrl);
+            const urlCheck = filterList.find((item) => {
+                const normalizedFilterListUrl = normalizeUrl(item.url);
+                console.log(`Checking against filter list URL: ${normalizedFilterListUrl}`);
+                return normalizedUrl.endsWith(normalizedFilterListUrl);
             });
             resolve(!!urlCheck);
         });

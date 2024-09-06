@@ -11,11 +11,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 url = "https://" + url;
             }
         }
-        chrome.storage.sync.get("whitelist", function (data) {
-            var whitelist = data.whitelist || [];
-            var urlCheck = whitelist.find((item) => item.url === url);
+        chrome.storage.sync.get("filterList", function (data) {
+            var filterList = data.filterList || [];
+            var urlCheck = filterList.find((item) => item.url === url);
             if (urlCheck) {
-                console.error("URL already exists in whitelist.");
+                console.error("URL already exists in Filter List.");
                 return;
             }
             try {
@@ -27,23 +27,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (url === mainDomain || url === mainDomain + "/") {
                     chrome.runtime.sendMessage({ action: "fetchTitle", url: mainDomain }, function (response) {
                         if (response && response.status === 500) {
-                            console.error("Website not added to whitelist.");
+                            console.error("Website not added to Filter List.");
                             return;
                         }
 
                         var title = response && response.title ? response.title : "No Title Found";
 
-                        whitelist.push({ // Add the website to the whitelist
+                        filterList.push({ // Add the website to the whitelist
                             websiteName: title,
                             url: url,
                             permissions: [],
                             whitelisted: false,
                         });
 
-                        chrome.storage.sync.set({ whitelist: whitelist }, function () {
-                            chrome.storage.sync.get(["whitelist"], function (updatedResult) {
-                                console.log("Updated whitelist:", updatedResult.whitelist); // Debug log
-                                displayWhitelist(); // Call displayWhitelist after adding the website
+                        chrome.storage.sync.set({ filterList: filterList }, function () {
+                            chrome.storage.sync.get(["filterList"], function (updatedResult) {
+                                console.log("Updated Filter List:", updatedResult.filterList); // Debug log
+                                displayFilterList(); // Call displayFilterList after adding the website
                             });
                         });
                     });
@@ -57,22 +57,22 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Clear all websites from the whitelist
-    document.getElementById("resetWhitelist").addEventListener("click", function () {
-        chrome.storage.sync.remove("whitelist", function () {
-            displayWhitelist();
+    document.getElementById("resetFilterList").addEventListener("click", function () {
+        chrome.storage.sync.remove("filterList", function () {
+            displayFilterList();
         });
     });
 
     // Example function to update the whitelist
-    function updateWhitelist(newItem) {
-        chrome.storage.sync.get("whitelist", function (data) {
-            const whitelist = data.whitelist || [];
-            whitelist.push(newItem);
-            chrome.storage.sync.set({ whitelist: whitelist }, function () {
+    function updateFilterList(newItem) {
+        chrome.storage.sync.get("filterList", function (data) {
+            const filterList = data.filterList || [];
+            filterList.push(newItem);
+            chrome.storage.sync.set({ filterList: filterList }, function () {
                 if (chrome.runtime.lastError) {
-                    console.error("Error updating whitelist:", chrome.runtime.lastError);
+                    console.error("Error updating Filter List:", chrome.runtime.lastError);
                 } else {
-                    console.log("Whitelist updated successfully");
+                    console.log("Filter List updated successfully");
                 }
             });
         });
@@ -80,28 +80,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Listen for changes in storage
     chrome.storage.onChanged.addListener(function (changes, namespace) {
-        if (namespace === 'sync' && changes.whitelist) {
-            console.log("Whitelist updated:", changes.whitelist.newValue);
+        if (namespace === 'sync' && changes.filterList) {
+            console.log("Filter List updated:", changes.filterList.newValue);
             // Handle the updated whitelist if needed
         }
     });
 
     // Function to display the whitelist
-    function displayWhitelist() {
-        chrome.storage.sync.get("whitelist", function (data) {
+    function displayFilterList() {
+        chrome.storage.sync.get("filterList", function (data) {
             if (chrome.runtime.lastError) {
-                console.error("Error retrieving whitelist:", chrome.runtime.lastError);
+                console.error("Error retrieving filterList:", chrome.runtime.lastError);
                 return;
             }
-            const whitelist = data.whitelist || [];
+            const filterList = data.filterList || [];
             // console.log("Fetched whitelist:", whitelist); // Debug log
-            const whitelistContainer = document.getElementById("filteredWebsitesContainer");
-            whitelistContainer.innerHTML = ""; // Clear any existing content
+            const filterListContainer = document.getElementById("filteredWebsitesContainer");
+            filterListContainer.innerHTML = ""; // Clear any existing content
 
-            whitelist.forEach((item, index) => {
+            filterList.forEach((item, index) => {
                 const listItem = document.createElement("div");
                 listItem.innerHTML = `<br> Index: ${index} <br> Website: ${item.websiteName} <br> URL: ${item.url}`;
-                whitelistContainer.appendChild(listItem);
+                filterListContainer.appendChild(listItem);
             });
         });
     }
@@ -189,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Initial display of tasks
     displayTasks();
-    displayWhitelist();
+    displayFilterList();
 });
 
 // // Append Title (via Heroku)
@@ -204,11 +204,11 @@ document.addEventListener("DOMContentLoaded", function () {
 //             url = "https://" + url;
 //         }
 //     }
-//     chrome.storage.sync.get("whitelist", function (data) {
-//         var whitelist = data.whitelist || [];
-//         var urlCheck = whitelist.find((item) => item.url === url);
+//     chrome.storage.sync.get("filterList", function (data) {
+//         var filterList = data.filterList || [];
+//         var urlCheck = filterList.find((item) => item.url === url);
 //         if (urlCheck) {
-//             console.error("URL already exists in whitelist.");
+//             console.error("URL already exists in Filter List.");
 //             return;
 //         }
 //         try {
@@ -226,16 +226,16 @@ document.addEventListener("DOMContentLoaded", function () {
 //                         var titleElement = doc.querySelector("title");
 //                         var title = titleElement ? titleElement.innerText : "No Title Found";
 
-//                         whitelist.push({
+//                         filterList.push({
 //                             websiteName: title,
 //                             url: url,
 //                             permissions: [],
 //                             whitelisted: true,
 //                         });
-//                         chrome.storage.sync.set({ whitelist: whitelist }, function () {
-//                             chrome.storage.sync.get(["whitelist"], function (updatedResult) {
-//                                 console.log("Updated whitelist:", updatedResult.whitelist); // Debug log
-//                                 displayWhitelist(); // Call displayWhitelist after adding the website
+//                         chrome.storage.sync.set({ filterList: filterList }, function () {
+//                             chrome.storage.sync.get(["filterList"], function (updatedResult) {
+//                                 console.log("Updated Filter List:", updatedResult.filterList); // Debug log
+//                                 displayFilterList(); // Call displayWhitelist after adding the website
 //                             });
 //                         });
 //                     })
