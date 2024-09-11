@@ -1,4 +1,8 @@
 // This script is responsible for handling the communication between the extension and the active tab.
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.tabs.create({ url: "dashboard.html" });
+});
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "injectAcrylicEffect") {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
