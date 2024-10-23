@@ -10,25 +10,15 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
                 if (isFiltered) {
                     checkIfTask().then((hasTasks) => {
                         const action = hasTasks ? "applyAcrylicEffect" : "removeAcrylicEffect";
-                        
-                        chrome.tabs.sendMessage(activeInfo.tabId, { action }, (response) => {
-                            if (chrome.runtime.lastError) {
-                                console.error("Error sending message:", chrome.runtime.lastError.message);
-                            } else {
-                                console.log("Message successfully sent:", response);
-                            }
-                        });
-
-                    }).catch(error => {
-                        console.error("Error checking tasks:", error);
+                        // Directly send the message since the content script is auto-injected
+                        chrome.tabs.sendMessage(activeInfo.tabId, { action });
                     });
                 }
-            }).catch(error => {
-                console.error("Error filtering URL:", error);
             });
         }
     });
 });
+
 // chrome.tabs.onActivated.addListener((activeInfo) => {
 //     chrome.tabs.get(activeInfo.tabId, (tab) => {
 //         if (tab.url) {

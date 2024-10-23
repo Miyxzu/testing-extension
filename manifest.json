@@ -6,8 +6,7 @@
         "default_popup": "popup.html"
     },
     "background": {
-        "service_worker": "background.js",
-        "persistent": false
+        "service_worker": "background.js"
     },
     "content_scripts": [
         {
@@ -20,8 +19,7 @@
         "activeTab",
         "scripting",
         "storage",
-        "tabs",
-        "<all_urls>"
+        "tabs"
     ],
     "web_accessible_resources": [
         {
