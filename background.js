@@ -19,21 +19,6 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
     });
 });
 
-// chrome.tabs.onActivated.addListener((activeInfo) => {
-//     chrome.tabs.get(activeInfo.tabId, (tab) => {
-//         if (tab.url) {
-//             checkIfFiltered(tab.url).then((isFiltered) => {
-//                 if (isFiltered) {
-//                     checkIfTask().then((hasTasks) => {
-//                         const action = hasTasks ? "applyAcrylicEffect" : "removeAcrylicEffect";
-//                         chrome.tabs.sendMessage(activeInfo.tabId, { action });
-//                     });
-//                 }
-//             });
-//         }
-//     });
-// });
-
 // Check if a task exists
 function checkIfTask() {
     return new Promise((resolve, reject) => {
@@ -92,20 +77,40 @@ function checkIfFiltered(url) {
 
 // Normalize URL for comparison
 function normalizeUrl(url) {
-    let normalizedUrl = url.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/^\//, ""); // Remove protocol and 'www.'
+    let normalizedUrl = url.replace(/^https?:\/\//, "")  // Remove protocol (http or https)
+                           .replace(/^www\./, "");      // Remove 'www.'
+
     const parts = normalizedUrl.split(".");
+
+    const secondLevel = ['co.', 'gov.', 'edu.', 'org.', 'ac.']
+
     if (parts.length > 2) {
-        normalizedUrl = parts.slice(-2).join(".");
+        const possibleSecondLevelDomain = `${parts[parts.length - 2]}.${parts[parts.length - 1]}`;
+        if (secondLevel.includes(possibleSecondLevelDomain)) {
+            normalizedDomain = `${parts[parts.length - 3]}.${possibleSecondLevelDomain}`;
+        } else {
+            normalizedDomain = `${parts[parts.length - 2]}.${parts[parts.length - 1]}`;
+        }
+    } else {
+        normalizedDomain = normalizedUrl; // For short domains like example.com
     }
+
+    if (parts.length > 2) {
+        normalizedUrl = parts.slice(-2).join(".");       // Retain only the root domain
+    }
+
     const domainEndIndex = normalizedUrl.indexOf("/");
     if (domainEndIndex !== -1) {
-        normalizedUrl = normalizedUrl.substring(0, domainEndIndex);
+        normalizedUrl = normalizedUrl.substring(0, domainEndIndex);  // Remove path
     }
+
     if (!normalizedUrl.endsWith("/")) {
-        normalizedUrl += "/";
+        normalizedUrl += "/";                            // Ensure trailing slash
     }
+    
     return normalizedUrl;
 }
+
 
 // Get Title Function (Section Provided by Copilot)
 // (Server-side Method)
@@ -142,7 +147,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 // chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 //     if (request.action === "fetchTitle") {
 //         const url = request.url;
-//         const proxyUrl = `https://cors-anywhere.herokuapp.com/${url}`;
+//         const proxyUrl = `https://corsproxy.io/?${url}`;
+//         console.log(proxyUrl);
 //         fetch(proxyUrl)
 //             .then(response => {
 //                 if (!response.ok) {
