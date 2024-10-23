@@ -19,7 +19,9 @@ function addAcrylicEffect() {
         card.classList.add("acrylic-card");
 
         // Filter out empty or whitespace-only tasks
-        const filteredTasks = tasks.filter(task => task.title && task.title.trim() !== "");
+        const filteredTasks = tasks.filter(
+            (task) => task.title && task.title.trim() !== ""
+        );
 
         if (filteredTasks.length > 0) {
             const taskList = document.createElement("ul");
@@ -38,7 +40,7 @@ function addAcrylicEffect() {
     });
 }
 
-//Remove the acrylic effect from the active tab
+// Remove the acrylic effect from the active tab
 function removeAcrylicEffect() {
     const overlay = document.querySelector(".acrylic-overlay");
     if (overlay) {
@@ -49,36 +51,10 @@ function removeAcrylicEffect() {
 // Listen for messages from background.js
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "applyAcrylicEffect") {
-        // addAcrylicEffect();
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            const tabId = tabs[0].id;
-            chrome.scripting
-                .insertCSS({
-                    target: { tabId: tabId },
-                    files: ["acrylic.css"],
-                })
-                .then(() => {
-                    chrome.scripting.executeScript({
-                        target: { tabId: tabId },
-                        function: addAcrylicEffect,
-                    });
-                })
-                .catch((error) =>
-                    console.error("Failed to insert CSS:", error)
-                );
-        });
+        console.log("Applying Acrylic Effect");
+        addAcrylicEffect();  // Directly call the acrylic effect function
     } else if (request.action === "removeAcrylicEffect") {
-        // removeAcrylicEffect();
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            const tabId = tabs[0].id;
-            chrome.scripting
-                .executeScript({
-                    target: { tabId: tabId },
-                    function: removeAcrylicEffect,
-                })
-                .catch((error) =>
-                    console.error("Failed to remove CSS:", error)
-                );
-        });
+        console.log("Removing Acrylic Effect");
+        removeAcrylicEffect();  // Directly call the removal function
     }
 });

@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Append Title to whitelist.json
+    
+    // Add URL to filterList
     document.getElementById("websiteButton").addEventListener("click", function () {
         var url = document.getElementById("websiteText").value;
         if (!url) {

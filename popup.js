@@ -1,11 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Get title of the active tab
-    document.getElementById("titleButton").addEventListener("click", function () {
-        getTitle((title) => {
-            document.getElementById("title").textContent = title;
-        });
-    });
-
     // Inject CSS into the active tab
     document.getElementById("on").addEventListener("click", function () {
         console.log("Inject button clicked"); // Debug log
@@ -17,163 +10,8 @@ document.addEventListener("DOMContentLoaded", function () {
         chrome.runtime.sendMessage({ action: "removeAcrylicEffect" });
     });
 
-    // Append Title to whitelist.json
-    document.getElementById("jsonPush").addEventListener("click", function () {
-        getTitle((title) => {
-            if (!title) {
-                console.error("No title found.");
-                return;
-            } else if (title === "New Tab") {
-                console.error("Title is 'New Tab'.");
-                return;
-            }
-            getURL((url) => {
-                if (!url) {
-                    console.error("No URL found.");
-                    return;
-                } else if (url === "chrome://newtab/") {
-                    console.error("URL is 'chrome://newtab/'.");
-                    return;
-                }
-                chrome.storage.sync.get("filterList", function (data) {
-                    var filterList = data.filterList || [];
-                    var urlCheck = filterList.find((item) => item.url === url);
-                    if (urlCheck) {
-                        console.error("URL already exists in Filter List.");
-                        return;
-                    }
-                    filterList.push({
-                        websiteName: title,
-                        url: url,
-                        permissions: [],
-                        whitelisted: true,
-                    });
-                    chrome.storage.sync.set(
-                        { filterList: filterList },
-                        function () {
-                            console.log("Details added to Filter List");
-                            chrome.storage.sync.get(
-                                ["filterList"],
-                                function (updatedResult) {
-                                    console.log(
-                                        "Updated Filter List:",
-                                        updatedResult.filterList
-                                    ); // Debug log
-                                }
-                            );
-                        }
-                    );
-                });
-            });
-        });
-    });
-
-    // Get Title Function
-    function getTitle(callback) {
-        chrome.tabs.query(
-            { active: true, currentWindow: true },
-            function (tabs) {
-                if (tabs.length === 0) {
-                    console.error("No active tab found.");
-                    return;
-                }
-                var activeTab = tabs[0];
-                if (!activeTab.url) {
-                    console.error("Active tab has no URL.");
-                    return;
-                }
-                try {
-                    var url = new URL(activeTab.url);
-                    var mainDomain = url.protocol + "//" + url.hostname;
-
-                    if (
-                        activeTab.url === mainDomain ||
-                        activeTab.url === mainDomain + "/"
-                    ) {
-                        chrome.scripting.executeScript(
-                            {
-                                target: { tabId: activeTab.id },
-                                func: () => document.title,
-                            },
-                            (results) => {
-                                if (
-                                    results &&
-                                    results[0] &&
-                                    results[0].result
-                                ) {
-                                    callback(results[0].result);
-                                } else {
-                                    console.error(
-                                        "Error retrieving title from the active tab."
-                                    );
-                                }
-                            }
-                        );
-                    } else {
-                        fetch(mainDomain)
-                            .then((response) => response.text())
-                            .then((html) => {
-                                var parser = new DOMParser();
-                                var doc = parser.parseFromString(
-                                    html,
-                                    "text/html"
-                                );
-                                var title =
-                                    doc.querySelector("title").innerText;
-                                callback(title);
-                            })
-                            .catch((error) => {
-                                console.error(
-                                    "Error fetching main domain HTML:",
-                                    error
-                                );
-                            });
-                    }
-                } catch (error) {
-                    console.error("Error parsing URL:", error);
-                }
-            }
-        );
-    }
-
-    // Get URL Function
-    function getURL(callback) {
-        chrome.tabs.query(
-            { active: true, currentWindow: true },
-            function (tabs) {
-                if (tabs.length === 0) {
-                    console.error("No active tab found.");
-                    callback(null);
-                    return;
-                }
-                var activeTab = tabs[0];
-                if (!activeTab.url) {
-                    console.error("Active tab has no URL.");
-                    callback(null);
-                    return;
-                }
-                try {
-                    var url = new URL(activeTab.url);
-                    var mainDomain = url.protocol + "//" + url.hostname;
-
-                    if (
-                        activeTab.url === mainDomain ||
-                        activeTab.url === mainDomain + "/"
-                    ) {
-                        callback(activeTab.url);
-                    } else {
-                        callback(mainDomain);
-                    }
-                } catch (error) {
-                    console.error("Error parsing URL:", error);
-                    callback(null);
-                }
-            }
-        );
-    }
-
     // Function to display the whitelist
-    document.getElementById("showfilterList").addEventListener("click", function () {
+    document.getElementById("showFilterList").addEventListener("click", function () {
         chrome.storage.sync.get("filterList", function (data) {
             if (chrome.runtime.lastError) {
                 console.error("Error retrieving Filter List:", chrome.runtime.lastError);
@@ -191,6 +29,8 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     });
+
+    
 
     // Listen for changes in storage
     chrome.storage.onChanged.addListener(function (changes, namespace) {

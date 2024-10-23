@@ -1,98 +1,6 @@
-// This script is responsible for handling the communication between the extension and the active tab.
 chrome.runtime.onInstalled.addListener(() => {
-    chrome.tabs.create({ url: "dashboard.html" });
+    chrome.tabs.create({ url: "dashboard/page.html" });
 });
-
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === "injectAcrylicEffect") {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            if (tabs && tabs.length > 0) {
-                const tabId = tabs[0].id;
-                chrome.scripting
-                    .insertCSS({
-                        target: { tabId: tabId },
-                        files: ["acrylic.css"],
-                    })
-                    .then(() => {
-                        chrome.scripting.executeScript({
-                            target: { tabId: tabId },
-                            function: addAcrylicEffect,
-                        });
-                    })
-                    .catch((error) =>
-                        console.error("Failed to insert CSS:", error)
-                    );
-            } else {
-                console.error("No active tab found.");
-            }
-        });
-    } else if (request.action === "removeAcrylicEffect") {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            if (tabs && tabs.length > 0) {
-                const tabId = tabs[0].id;
-                chrome.scripting
-                    .executeScript({
-                        target: { tabId: tabId },
-                        function: removeAcrylicEffect,
-                    })
-                    .catch((error) =>
-                        console.error("Failed to remove CSS:", error)
-                    );
-            } else {
-                console.error("No active tab found.");
-            }
-        });
-    }
-    return true; // Indicates that the response will be sent asynchronously
-});
-
-//Apply the acrylic effect to the active tab
-function addAcrylicEffect() {
-    chrome.storage.local.get("tasks", (data) => {
-        if (chrome.runtime.lastError) {
-            console.error(`Error fetching tasks: ${chrome.runtime.lastError}`);
-            return;
-        }
-        const tasks = data.tasks || [];
-        console.log(`Task data (via acrylicEffect): ${JSON.stringify(tasks)}`);
-
-        if (document.querySelector(".acrylic-overlay")) {
-            return;
-        }
-
-        const overlay = document.createElement("div");
-        overlay.classList.add("acrylic-overlay");
-
-        const card = document.createElement("div");
-        card.classList.add("acrylic-card");
-
-        // Filter out empty or whitespace-only tasks
-        const filteredTasks = tasks.filter(task => task.title && task.title.trim() !== "");
-
-        if (filteredTasks.length > 0) {
-            const taskList = document.createElement("ul");
-            filteredTasks.forEach((task) => {
-                const listItem = document.createElement("li");
-                listItem.textContent = task.title;
-                taskList.appendChild(listItem);
-            });
-            card.appendChild(taskList);
-        } else {
-            card.textContent = "No tasks left.";
-        }
-
-        overlay.appendChild(card);
-        document.body.appendChild(overlay);
-    });
-}
-
-//Remove the acrylic effect from the active tab
-function removeAcrylicEffect() {
-    const overlay = document.querySelector(".acrylic-overlay");
-    if (overlay) {
-        overlay.remove();
-    }
-}
 
 // Handle tab activation
 chrome.tabs.onActivated.addListener((activeInfo) => {
@@ -101,21 +9,40 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
             checkIfFiltered(tab.url).then((isFiltered) => {
                 if (isFiltered) {
                     checkIfTask().then((hasTasks) => {
-                        if (hasTasks) {
-                            chrome.tabs.sendMessage(activeInfo.tabId, {
-                                action: "applyAcrylicEffect",
-                            });
-                        } else {
-                            chrome.tabs.sendMessage(activeInfo.tabId, {
-                                action: "removeAcrylicEffect",
-                            });
-                        }
+                        const action = hasTasks ? "applyAcrylicEffect" : "removeAcrylicEffect";
+                        
+                        chrome.tabs.sendMessage(activeInfo.tabId, { action }, (response) => {
+                            if (chrome.runtime.lastError) {
+                                console.error("Error sending message:", chrome.runtime.lastError.message);
+                            } else {
+                                console.log("Message successfully sent:", response);
+                            }
+                        });
+
+                    }).catch(error => {
+                        console.error("Error checking tasks:", error);
                     });
                 }
+            }).catch(error => {
+                console.error("Error filtering URL:", error);
             });
         }
     });
 });
+// chrome.tabs.onActivated.addListener((activeInfo) => {
+//     chrome.tabs.get(activeInfo.tabId, (tab) => {
+//         if (tab.url) {
+//             checkIfFiltered(tab.url).then((isFiltered) => {
+//                 if (isFiltered) {
+//                     checkIfTask().then((hasTasks) => {
+//                         const action = hasTasks ? "applyAcrylicEffect" : "removeAcrylicEffect";
+//                         chrome.tabs.sendMessage(activeInfo.tabId, { action });
+//                     });
+//                 }
+//             });
+//         }
+//     });
+// });
 
 // Check if a task exists
 function checkIfTask() {
@@ -248,13 +175,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 //     }
 // });
 
-// chrome.permissions.request({
-//     origins: ["https://example.com/"]
-// }, (granted) => {
-//     if (granted) {
-//         console.log("Permission granted");
-//         // Proceed with accessing the URL
-//     } else {
-//         console.log("Permission denied");
-//     }
-// });
+chrome.permissions.request({
+    origins: ["https://example.com/", "https://wikipedia.org"]
+}, (granted) => {
+    if (granted) {
+        console.log("Permission granted");
+        // Proceed with accessing the URL
+    } else {
+        console.log("Permission denied");
+    }
+});
