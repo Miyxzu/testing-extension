@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-    
     // Add URL to filterList
     document.getElementById("websiteButton").addEventListener("click", function () {
         var url = document.getElementById("websiteText").value;
@@ -17,6 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
             var urlCheck = filterList.find((item) => item.url === url);
             if (urlCheck) {
                 console.error("URL already exists in Filter List.");
+                document.getElementsById("websiteLabel").innerText = "URL already exists in Filter List.";
                 return;
             }
             try {
@@ -44,6 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         chrome.storage.sync.set({ filterList: filterList }, function () {
                             chrome.storage.sync.get(["filterList"], function (updatedResult) {
                                 console.log("Updated Filter List:", updatedResult.filterList); // Debug log
+                                document.getElementsById("websiteLabel").innerText = "URL added to Filter List.";
                                 displayFilterList(); // Call displayFilterList after adding the website
                             });
                         });
@@ -101,7 +102,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             filterList.forEach((item, index) => {
                 const listItem = document.createElement("div");
-                listItem.innerHTML = `<br> Index: ${index} <br> Website: ${item.websiteName} <br> URL: ${item.url}`;
+                // listItem.innerHTML = `<br> Index: ${index} <br> Website: ${item.websiteName} <br> URL: ${item.url}`;
+                listItem.innerHTML = `<br> Website: ${item.websiteName} <br> URL: ${item.url}`;
                 filterListContainer.appendChild(listItem);
             });
         });
@@ -112,16 +114,27 @@ document.addEventListener("DOMContentLoaded", function () {
         const task = document.getElementById("taskInput").value;
         if (!task) {
             console.error("Please Enter a Task.");
+            document.getElementsById("taskLabel").innerText = "Task Added to List.";
             return;
         }
         chrome.storage.local.get("tasks", function (data) {
             const tasks = data.tasks || [];
+
+            if (tasks.find((item) => item.task === task)) {
+                console.error("Task already exists in Task List.");
+                document.getElementsById("taskLabel").innerText = "Task already exists in Task List.";
+                return;
+            }
+
+            // var urlCheck = filterList.find((item) => item.url === url);
+
             tasks.push({
                 task: task,
                 completed: false,
             });
             chrome.storage.local.set({ tasks: tasks }, function () {
                 console.log("Task added to list");
+                document.getElementsById("taskLabel").innerText = "Task Added to List.";
                 displayTasks(); // Call displayTasks after adding the task
             });
         });

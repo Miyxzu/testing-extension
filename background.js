@@ -1,44 +1,28 @@
+// Listen for messages and inject CSS or remove CSS
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "injectAcrylicEffect") {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            if (tabs && tabs.length > 0) {
-                const tabId = tabs[0].id;
-                chrome.scripting
-                    .insertCSS({
-                        target: { tabId: tabId },
-                        files: ["acrylic.css"],
-                    })
-                    .then(() => {
-                        chrome.scripting.executeScript({
-                            target: { tabId: tabId },
-                            function: addAcrylicEffect,
-                        });
-                    })
-                    .catch((error) =>
-                        console.error("Failed to insert CSS:", error)
-                    );
-            } else {
-                console.error("No active tab found.");
-            }
+            const tabId = tabs[0].id;
+            chrome.scripting.insertCSS({
+                target: { tabId: tabId },
+                files: ["acrylic.css"]
+            }).then(() => {
+                // After CSS is injected, apply the acrylic effect (ensure DOM manipulation happens after CSS)
+                chrome.scripting.executeScript({
+                    target: { tabId: tabId },
+                    function: addAcrylicEffect
+                });
+            }).catch(error => console.error("Failed to insert CSS:", error));
         });
     } else if (request.action === "removeAcrylicEffect") {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            if (tabs && tabs.length > 0) {
-                const tabId = tabs[0].id;
-                chrome.scripting
-                    .executeScript({
-                        target: { tabId: tabId },
-                        function: removeAcrylicEffect,
-                    })
-                    .catch((error) =>
-                        console.error("Failed to remove CSS:", error)
-                    );
-            } else {
-                console.error("No active tab found.");
-            }
+            const tabId = tabs[0].id;
+            chrome.scripting.executeScript({
+                target: { tabId: tabId },
+                function: removeAcrylicEffect
+            }).catch(error => console.error("Failed to remove effect:", error));
         });
     }
-    return true; // Indicates that the response will be sent asynchronously
 });
 
 //Apply the acrylic effect to the active tab
@@ -153,7 +137,6 @@ function checkIfFiltered(url) {
                 return reject(chrome.runtime.lastError);
             }
             const filterList = data.filterList || [];
-            console.log(`filterList: ${JSON.stringify(filterList)}`);
             const normalizedUrl = normalizeUrl(url);
             console.log(`Normalized URL: ${normalizedUrl}`);
             const urlCheck = filterList.find((item) => {
@@ -201,56 +184,27 @@ function normalizeUrl(url) {
 
 // Get Title Function (Section Provided by Copilot)
 // (Server-side Method)
-// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-//     if (request.action === "fetchTitle") {
-//         const url = request.url;
-//         const serverUrl = `http://localhost:3000/fetch-title?url=${encodeURIComponent(
-//             url
-//         )}`;
-//         console.log(`Fetching title for URL: ${url} from server: ${serverUrl}`);
-//         fetch(serverUrl)
-//             .then((response) => {
-//                 if (!response.ok) {
-//                     throw new Error(
-//                         `Network response was not ok: ${response.statusText}`
-//                     );
-//                 }
-//                 return response.json();
-//             })
-//             .then((data) => {
-//                 // console.log(`Received title: ${data.title}`);
-//                 sendResponse({ title: data.title });
-//             })
-//             .catch((error) => {
-//                 console.error("Error fetching title:", error);
-//                 sendResponse({ title: "No Title Found" });
-//             });
-//         return true; // Indicates that the response will be sent asynchronously
-//     }
-// });
-
-// Get Title Function (Section Provided by Copilot)
-// (Heroku Method)
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "fetchTitle") {
         const url = request.url;
-        const proxyUrl = `https://corsproxy.io/?${url}`;
-        console.log(proxyUrl);
-        fetch(proxyUrl)
-            .then(response => {
+        const serverUrl = `http://localhost:3000/fetch-title?url=${encodeURIComponent(
+            url
+        )}`;
+        console.log(`Fetching title for URL: ${url} from server: ${serverUrl}`);
+        fetch(serverUrl)
+            .then((response) => {
                 if (!response.ok) {
-                    throw new Error(`Network response was not ok: ${response.statusText}`);
+                    throw new Error(
+                        `Network response was not ok: ${response.statusText}`
+                    );
                 }
-                return response.text();
+                return response.json();
             })
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, "text/html");
-                const titleElement = doc.querySelector("title");
-                const title = titleElement ? titleElement.innerText : "No Title Found";
-                sendResponse({ title });
+            .then((data) => {
+                // console.log(`Received title: ${data.title}`);
+                sendResponse({ title: data.title });
             })
-            .catch(error => {
+            .catch((error) => {
                 console.error("Error fetching title:", error);
                 sendResponse({ title: "No Title Found" });
             });
@@ -258,13 +212,31 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 });
 
-chrome.permissions.request({
-    origins: ["https://example.com/", "https://wikipedia.org"]
-}, (granted) => {
-    if (granted) {
-        console.log("Permission granted");
-        // Proceed with accessing the URL
-    } else {
-        console.log("Permission denied");
-    }
-});
+// Get Title Function (Section Provided by Copilot)
+// (Heroku Method)
+// chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+//     if (request.action === "fetchTitle") {
+//         const url = request.url;
+//         const proxyUrl = `https://corsproxy.io/?${url}`;
+//         console.log(proxyUrl);
+//         fetch(proxyUrl)
+//             .then(response => {
+//                 if (!response.ok) {
+//                     throw new Error(`Network response was not ok: ${response.statusText}`);
+//                 }
+//                 return response.text();
+//             })
+//             .then(html => {
+//                 const parser = new DOMParser();
+//                 const doc = parser.parseFromString(html, "text/html");
+//                 const titleElement = doc.querySelector("title");
+//                 const title = titleElement ? titleElement.innerText : "No Title Found";
+//                 sendResponse({ title });
+//             })
+//             .catch(error => {
+//                 console.error("Error fetching title:", error);
+//                 sendResponse({ title: "No Title Found" });
+//             });
+//         return true; // Indicates that the response will be sent asynchronously
+//     }
+// });
