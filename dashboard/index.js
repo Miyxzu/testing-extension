@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
             var urlCheck = filterList.find((item) => item.url === url);
             if (urlCheck) {
                 console.error("URL already exists in Filter List.");
-                document.getElementsById("websiteLabel").innerText = "URL already exists in Filter List.";
+                document.getElementById("websiteLabel").innerText = "URL already exists in Filter List.";
                 return;
             }
             try {
@@ -44,7 +44,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         chrome.storage.sync.set({ filterList: filterList }, function () {
                             chrome.storage.sync.get(["filterList"], function (updatedResult) {
                                 console.log("Updated Filter List:", updatedResult.filterList); // Debug log
-                                document.getElementsById("websiteLabel").innerText = "URL added to Filter List.";
+                                document.getElementById("websiteLabel").innerText = "URL added to Filter List.";
                                 displayFilterList(); // Call displayFilterList after adding the website
                             });
                         });
@@ -114,7 +114,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const task = document.getElementById("taskInput").value;
         if (!task) {
             console.error("Please Enter a Task.");
-            document.getElementsById("taskLabel").innerText = "Task Added to List.";
+            document.getElementById("taskLabel").innerText = "Task Added to List.";
             return;
         }
         chrome.storage.local.get("tasks", function (data) {
@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (tasks.find((item) => item.task === task)) {
                 console.error("Task already exists in Task List.");
-                document.getElementsById("taskLabel").innerText = "Task already exists in Task List.";
+                document.getElementById("taskLabel").innerText = "Task already exists in Task List.";
                 return;
             }
 
