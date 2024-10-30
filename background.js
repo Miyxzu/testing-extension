@@ -1,4 +1,4 @@
-// Listen for messages and inject CSS or remove CSS
+// Mainly for Popup CSS injection, no correlation to actual logic
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "injectAcrylicEffect") {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -73,6 +73,7 @@ function removeAcrylicEffect() {
     }
 }
 
+// Open Dashboard on First Install
 chrome.runtime.onInstalled.addListener(() => {
     chrome.tabs.create({ url: "dashboard/page.html" });
 });
@@ -85,14 +86,24 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
                 if (isFiltered) {
                     checkIfTask().then((hasTasks) => {
                         const action = hasTasks ? "applyAcrylicEffect" : "removeAcrylicEffect";
-                        // Directly send the message since the content script is auto-injected
-                        chrome.tabs.sendMessage(activeInfo.tabId, { action });
+                        
+                        // Inject CSS before sending the action message
+                        chrome.scripting.insertCSS({
+                            target: { tabId: activeInfo.tabId },
+                            files: ["acrylic.css"]
+                        }).then(() => {
+                            // Send the action message after CSS is confirmed injected
+                            chrome.tabs.sendMessage(activeInfo.tabId, { action });
+                        }).catch((error) => {
+                            console.error("Failed to inject CSS:", error);
+                        });
                     });
                 }
             });
         }
     });
 });
+
 
 // Check if a task exists
 function checkIfTask() {

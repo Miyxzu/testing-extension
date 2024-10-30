@@ -46,9 +46,13 @@ function removeAcrylicEffect() {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "applyAcrylicEffect") {
         console.log("Applying Acrylic Effect");
-        addAcrylicEffect();  // Directly call the acrylic effect function
+        if (document.querySelector(".acrylic-overlay")) {
+            return;  // Ensure only one overlay is created
+        }
+        addAcrylicEffect();  // Call the function only after CSS injection is confirmed in background.js
     } else if (request.action === "removeAcrylicEffect") {
         console.log("Removing Acrylic Effect");
-        removeAcrylicEffect();  // Directly call the removal function
+        removeAcrylicEffect();
     }
 });
+
