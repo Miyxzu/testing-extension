@@ -7,7 +7,7 @@ body {
     width: 400px;
 }
 
-.filterList, .tasks {
+.tasks {
     background-color: #ffffff;
     padding: 15px;
     border-radius: 10px;
@@ -43,7 +43,7 @@ button:hover {
     background-color: #219150;
 }
 
-#filterListContainer, #taskContainer {
+#taskContainer {
     background: #eaf7ea;
     padding: 10px;
     border-radius: 5px;

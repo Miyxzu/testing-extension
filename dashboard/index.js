@@ -102,7 +102,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             filterList.forEach((item, index) => {
                 const listItem = document.createElement("div");
-                // listItem.innerHTML = `<br> Index: ${index} <br> Website: ${item.websiteName} <br> URL: ${item.url}`;
                 listItem.innerHTML = `<br> Website: ${item.websiteName} <br> URL: ${item.url}`;
                 filterListContainer.appendChild(listItem);
             });
