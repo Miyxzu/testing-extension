@@ -1,15 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Inject CSS into the active tab
-    document.getElementById("on").addEventListener("click", function () {
-        console.log("Inject button clicked"); // Debug log
-        chrome.runtime.sendMessage({ action: "injectAcrylicEffect" });
-    });
-
-    // Remove injected CSS from the active tab
-    document.getElementById("off").addEventListener("click", function () {
-        chrome.runtime.sendMessage({ action: "removeAcrylicEffect" });
-    });
-
     // Function to display the whitelist
     document.getElementById("showFilterList").addEventListener("click", function () {
         chrome.storage.sync.get("filterList", function (data) {
@@ -29,8 +18,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     });
-
-    
 
     // Listen for changes in storage
     chrome.storage.onChanged.addListener(function (changes, namespace) {
@@ -103,8 +90,6 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         });
     }
-
-    // Remove 
     
     // Initial display of tasks and whitelist
     displayTasks();
