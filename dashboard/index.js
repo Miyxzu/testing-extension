@@ -96,7 +96,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
             const filterList = data.filterList || [];
-            // console.log("Fetched whitelist:", whitelist); // Debug log
             const filterListContainer = document.getElementById("filteredWebsitesContainer");
             filterListContainer.innerHTML = ""; // Clear any existing content
 
@@ -204,60 +203,3 @@ document.addEventListener("DOMContentLoaded", function () {
     displayTasks();
     displayFilterList();
 });
-
-// // Append Title (via Heroku)
-// document.getElementById("websiteButton").addEventListener("click", function () {
-//     var url = document.getElementById("websiteText").value;
-//     if (!url) {
-//         console.error("Please Enter a URL.");
-//         return;
-//     }
-//     if (url) {
-//         if (!url.startsWith("http://") && !url.startsWith("https://")) {
-//             url = "https://" + url;
-//         }
-//     }
-//     chrome.storage.sync.get("filterList", function (data) {
-//         var filterList = data.filterList || [];
-//         var urlCheck = filterList.find((item) => item.url === url);
-//         if (urlCheck) {
-//             console.error("URL already exists in Filter List.");
-//             return;
-//         }
-//         try {
-//             var urlObject = new URL(url);
-//             var mainDomain = urlObject.protocol + "//" + urlObject.hostname;
-
-//             if (url === mainDomain || url === mainDomain + "/") {
-//                 // Use a public CORS proxy
-//                 const proxyUrl = `https://cors-anywhere.herokuapp.com/${mainDomain}`;
-//                 fetch(proxyUrl)
-//                     .then((response) => response.text())
-//                     .then((html) => {
-//                         var parser = new DOMParser();
-//                         var doc = parser.parseFromString(html, "text/html");
-//                         var titleElement = doc.querySelector("title");
-//                         var title = titleElement ? titleElement.innerText : "No Title Found";
-
-//                         filterList.push({
-//                             websiteName: title,
-//                             url: url,
-//                             permissions: [],
-//                             whitelisted: true,
-//                         });
-//                         chrome.storage.sync.set({ filterList: filterList }, function () {
-//                             chrome.storage.sync.get(["filterList"], function (updatedResult) {
-//                                 console.log("Updated Filter List:", updatedResult.filterList); // Debug log
-//                                 displayFilterList(); // Call displayWhitelist after adding the website
-//                             });
-//                         });
-//                     })
-//                     .catch((error) => {
-//                         console.error("Error fetching Main Domain Title from HTML:", error);
-//                     });
-//             }
-//         } catch (error) {
-//             console.error("Error parsing URL:", error);
-//         }
-//     });
-// });

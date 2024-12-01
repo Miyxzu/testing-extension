@@ -44,25 +44,43 @@ function checkIfTask() {
     });
 }
 
-// Check if a task exists in storage and removes it if the browser is closed
-chrome.runtime.onSuspend.addListener(() => {
-    checkIfTask()
-        .then((hasTasks) => {
-            if (hasTasks) {
-                chrome.storage.local.remove("tasks", () => {
-                    if (chrome.runtime.lastError) {
-                        console.error(
-                            `Error removing tasks: ${chrome.runtime.lastError}`
-                        );
-                    } else {
-                        console.log("Tasks removed from storage.");
-                    }
-                });
-            }
-        })
-        .catch((error) => {
-            console.error(`Error checking tasks: ${error}`);
+// Check if a task exists in storage and removes it on browser close (technically startup but who cares)
+chrome.runtime.onStartup.addListener(() => {
+    checkIfTask().then((hasTasks) => {
+        if(hasTasks) {
+            chrome.storage.local.remove("tasks", () => {
+                if (chrome.runtime.lastError) {
+                    console.error(`Error removing tasks: ${chrome.runtime.lastError}`);
+                } else {
+                    console.log("Tasks Cleared.");
+                }
+            });
+        }
+    }).catch((error) => {
+        console.error("Error checking tasks on startup:", error);
+    });
+});
+
+// Block notifications on tab switch
+chrome.tabs.onActivated.addListener((activeInfo) => {
+    chrome.tabs.get(activeInfo.tabId, (tab) => {
+        if (tab.url) {
+            checkIfFiltered(tab.url).then((isFiltered) => {
+                const action = isFiltered ? "blockNotifications" : "restoreNotifications";
+                chrome.tabs.sendMessage(activeInfo.tabId, { action });
+            });
+        }
+    });
+});
+
+// Block notifications on URL change
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (changeInfo.url) { // React to URL changes
+        checkIfFiltered(changeInfo.url).then((isFiltered) => {
+            const action = isFiltered ? "blockNotifications" : "restoreNotifications";
+            chrome.tabs.sendMessage(tabId, { action });
         });
+    }
 });
 
 // Check if the URL is whitelisted

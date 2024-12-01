@@ -1,8 +1,6 @@
 // Apply the acrylic effect to the active tab
 function addAcrylicEffect() {
-    // Ensure the acrylic effect is only applied after CSS is loaded
     if (!document.querySelector(".acrylic-overlay")) {
-        // Now apply the overlay only after confirming no other overlays exist
         chrome.storage.local.get("tasks", (data) => {
             if (chrome.runtime.lastError) {
                 console.error(`Error fetching tasks: ${chrome.runtime.lastError}`);
@@ -42,6 +40,33 @@ function removeAcrylicEffect() {
     }
 }
 
+let originalNotification = null; // Store the original Notification API
+
+// Block site notifications
+function blockNotifications() {
+    if (!originalNotification) {
+        originalNotification = window.Notification;
+
+        // Override the Notification constructor
+        window.Notification = function () {
+            console.log("Blocked a notification");
+        };
+
+        // Preserve existing properties
+        window.Notification.permission = originalNotification.permission;
+        window.Notification.requestPermission = originalNotification.requestPermission.bind(originalNotification);
+    }
+}
+
+// Allow site notifications
+function restoreNotifications() {
+    if (originalNotification) {
+        window.Notification = originalNotification; // Restore the original Notification constructor
+        originalNotification = null;
+        console.log("Notifications restored");
+    }
+}
+
 // Listen for messages from background.js
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "applyAcrylicEffect") {
@@ -49,10 +74,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         if (document.querySelector(".acrylic-overlay")) {
             return;  // Ensure only one overlay is created
         }
-        addAcrylicEffect();  // Call the function only after CSS injection is confirmed in background.js
+        addAcrylicEffect();  // Apply acrylic effect after CSS injection
     } else if (request.action === "removeAcrylicEffect") {
         console.log("Removing Acrylic Effect");
         removeAcrylicEffect();
     }
 });
 
+// Listen for messages from the background script
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === "blockNotifications") {
+        blockNotifications();
+    } else if (request.action === "restoreNotifications") {
+        restoreNotifications();
+    }
+});
