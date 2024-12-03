@@ -37,8 +37,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         filterList.push({ // Add the website to the whitelist
                             websiteName: title,
                             url: url,
-                            permissions: [],
-                            whitelisted: false,
                         });
 
                         chrome.storage.sync.set({ filterList: filterList }, function () {
